@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import MeetupList from "../components/meetups/MeetupList";
 
 const DUMMY_MEETUPS = [
@@ -29,24 +28,28 @@ const DUMMY_MEETUPS = [
 ];
 
 const HomePage = (props) => {
-  const [meetups, setMeetups] = useState([]);
-
-  useEffect(() => {
-    //send http request and fetch data
-    setMeetups(DUMMY_MEETUPS);
-  }, []);
-
-  return <MeetupList meetups={meetups} />;
+  return <MeetupList meetups={props.meetups} />;
 };
 
-export async const getStaticProps = () => {
-//fetch data from an API
-//read files from file system
-return {
-  props: {
-    meetups: DUMMY_MEETUPS
-  }
-} //always return an object from this funciton
+// export async function getServerSideProps(context) {
+//   const req = context.req;
+//   const res = context.res;
+
+//   //fetch data from API or file system
+//   return {
+//     props: DUMMY_MEETUPS,
+//   };
+// } //runs for every incoming request
+
+export async function getStaticProps() {
+  //fetch data from an API
+  //read files from file system
+  return {
+    props: {
+      meetups: DUMMY_MEETUPS,
+    },
+    revalidate: 10, //number of secs next waits to revalidate data on this page...
+  }; //always return an object from this funciton
 }
 
 export default HomePage;
