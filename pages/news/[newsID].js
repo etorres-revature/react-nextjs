@@ -1,4 +1,4 @@
-//localhost:3000/news/something-important
+//localhost:3000/news/**
 
 const ImportantPage = () => {
   return <h1>The News - something important happened</h1>;
