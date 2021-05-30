@@ -47,7 +47,7 @@ export async function getStaticProps() {
   //fetch data from an API
   //read files from file system
 
-  MongoClient.connect("mondoconnecturl");
+  const client = MongoClient.connect("mondoconnecturl");
 
   const db = client.db();
 

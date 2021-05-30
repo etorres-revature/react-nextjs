@@ -1,31 +1,33 @@
+import { MongoClient, ObjectId } from "mongodb";
 import MeetupDetail from "../../components/meetups/MeeupDetail";
 
-const MeetUpDetail = () => {
+const MeetUpDetail = (props) => {
   return (
     <MeetupDetail
-      image="https://i2.wp.com/handluggageonly.co.uk/wp-content/uploads/2016/10/Hand-Luggage-Only-2-1.jpg?w=1600&ssl=1"
-      title="first meetup"
-      address="Some street, your city"
-      description="this is the first meetup"
+      image={props.meetupData.image}
+      title={props.meetupData.title}
+      address={props.meetupData.address}
+      description={props.meetupData.description}
     />
   );
 };
 
 export async function getStaticPaths() {
+  const client = MongoClient.connect("mondoconnecturl");
+
+  const db = client.db();
+
+  const meetUpsCollection = db.collection("meetups");
+
+  const meeetups = await meetUpsCollection.find({}, { _id: 1 }).toArray();
+
+  (await client).close();
+
   return {
     fallback: false,
-    paths: [
-      {
-        params: {
-          meetupID: "m1",
-        },
-      },
-      {
-        params: {
-          meetupID: "m2",
-        },
-      },
-    ],
+    paths: meeetups.map((meetup) => ({
+      params: { meetupID: meetup._id.toString() },
+    })),
   };
 }
 
@@ -34,18 +36,21 @@ export async function getStaticProps(context) {
 
   const meetupID = context.params.meetupID;
 
-  console.log(meetupID);
+  const client = MongoClient.connect("mondoconnecturl");
+
+  const db = client.db();
+
+  const meetUpsCollection = db.collection("meetups");
+
+  const selectedMeetup = await meetUpsCollection.findOne({
+    _id: ObjectId(meetupID),
+  });
+
+  client.clost();
 
   return {
     props: {
-      meetupData: {
-        id: "m1",
-        image:
-          "https://i2.wp.com/handluggageonly.co.uk/wp-content/uploads/2016/10/Hand-Luggage-Only-2-1.jpg?w=1600&ssl=1",
-        title: "First meetup",
-        address: "Some Street, Your City",
-        description: "this is the first meetup",
-      },
+      meetupData: selectedMeetup,
     },
   };
 }
